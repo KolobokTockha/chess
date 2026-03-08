@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Шахматы · Выбор режима</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            background-attachment: fixed;
+            background-image: 
+                repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.03) 0px, rgba(255, 255, 255, 0.03) 20px, rgba(0, 0, 0, 0.02) 20px, rgba(0, 0, 0, 0.02) 40px),
+                radial-gradient(circle at 30% 40%, rgba(210, 180, 140, 0.15) 0%, transparent 30%);
+            color: #f0e9de;
+        }
+
+        .menu {
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 48px;
+            padding: 3rem 4rem;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.9);
+            border: 1px solid #444;
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 20px rgba(255, 215, 0, 0.3);
+            color: #ffd700;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 3rem;
+            color: #aaa;
+            border-bottom: 1px dashed #444;
+            padding-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.8rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .mode-btn {
+            border: none;
+            background: #333;
+            padding: 1.5rem 2.8rem;
+            border-radius: 60px;
+            font-size: 2rem;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 15px 20px -8px rgba(0,0,0,0.8);
+            transition: 0.2s ease-in-out;
+            border: 1px solid #444;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            min-width: 260px;
+            letter-spacing: 1px;
+            text-decoration: none;
+            font-family: inherit;
+        }
+
+        .mode-btn.computer {
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+        }
+
+        .mode-btn.friend {
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+        }
+
+        .mode-btn.computer::before {
+            content: "🤖";
+            font-size: 2rem;
+        }
+
+        .mode-btn.friend::before {
+            content: "👥";
+            font-size: 2rem;
+        }
+
+        .mode-btn:hover {
+            background: #444;
+            transform: translateY(-5px);
+            box-shadow: 0 22px 25px -8px black;
+            border-color: #ffd700;
+            color: #ffd700;
+        }
+
+        .mode-btn:active {
+            transform: translateY(2px);
+        }
+
+        .footer-chess {
+            margin-top: 3.5rem;
+            font-size: 2rem;
+            opacity: 0.5;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            color: #ffd700;
+        }
+
+        @media (max-width: 500px) {
+            .menu {
+                padding: 2rem 1.5rem;
+            }
+            h1 {
+                font-size: 2.8rem;
+            }
+            .mode-btn {
+                font-size: 1.6rem;
+                padding: 1.2rem 1.8rem;
+                min-width: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="menu">
+        <h1>Chess</h1>
+        <div class="subtitle">выберите режим</div>
+
+        <div class="buttons">
+            <a href="gameBot.html" class="mode-btn computer">
+                С компьютером
+            </a>
+            <a href="gamePlayer.html" class="mode-btn friend">
+                С другом
+            </a>
+        </div>
+
+        <div class="footer-chess">
+            <span>♔</span> <span>♕</span> <span>♗</span> <span>♘</span> <span>♖</span>
+        </div>
+    </div>
+
+    <script>
+        // Анимация фигур
+        const figures = document.querySelectorAll('.footer-chess span');
+        figures.forEach((fig) => {
+            fig.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+            fig.addEventListener('mouseenter', () => {
+                fig.style.transform = 'translateY(-6px) scale(1.2)';
+                fig.style.opacity = '1';
+            });
+            fig.addEventListener('mouseleave', () => {
+                fig.style.transform = 'none';
+                fig.style.opacity = '0.5';
+            });
+        });
+    </script>
+</body>
+</html>

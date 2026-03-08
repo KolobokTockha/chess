@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Шахматы · Игра с ботом</title>
+    <!-- Подключаем шрифты и стили -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Шахматная доска CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #2e1e0f 0%, #4a3723 100%);
+            background-attachment: fixed;
+            background-image: 
+                repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.03) 0px, rgba(255, 255, 255, 0.03) 20px, rgba(0, 0, 0, 0.02) 20px, rgba(0, 0, 0, 0.02) 40px),
+                radial-gradient(circle at 30% 40%, rgba(210, 180, 140, 0.15) 0%, transparent 30%);
+            color: #f0e9de;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Игровой контейнер */
+        .game-container {
+            background: rgba(30, 20, 10, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 48px;
+            padding: 2rem;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.7), inset 0 2px 4px rgba(255, 215, 140, 0.3);
+            border: 1px solid rgba(230, 190, 140, 0.3);
+            max-width: 700px;
+            width: 100%;
+        }
+
+        /* Верхняя панель */
+        .game-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+
+        .game-title {
+            font-size: 2rem;
+            font-weight: 500;
+            letter-spacing: 2px;
+            color: #f5e7d9;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .back-btn {
+            background: linear-gradient(145deg, #372b1f, #241b12);
+            border: 1px solid #b28c5a;
+            color: #eedbcb;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(145deg, #4f3e2e, #33291d);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border-color: #e3bc8b;
+            color: white;
+        }
+
+        /* Статус игры */
+        .game-status {
+            text-align: center;
+            font-size: 1.3rem;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 50px;
+            border: 1px solid #b99e7c;
+            color: #d4c0a9;
+        }
+
+        /* Контейнер для доски */
+        .board-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        #board {
+            width: 100%;
+            max-width: 560px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Информация об игроках */
+        .players-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 50px;
+        }
+
+        .player {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 20px;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .player.white {
+            border: 2px solid #f0e9de;
+        }
+
+        .player.black {
+            border: 2px solid #2c2c2c;
+            color: #d4c0a9;
+        }
+
+        .player-icon {
+            font-size: 1.5rem;
+        }
+
+        .player-name {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .player-turn {
+            font-size: 0.9rem;
+            color: #b99e7c;
+        }
+
+        /* Кнопка новой игры */
+        .new-game-btn {
+            background: linear-gradient(145deg, #372b1f, #241b12);
+            border: 1px solid #b28c5a;
+            color: #eedbcb;
+            padding: 15px 30px;
+            border-radius: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 20px;
+            width: 100%;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .new-game-btn:hover {
+            background: linear-gradient(145deg, #4f3e2e, #33291d);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            border-color: #e3bc8b;
+            color: white;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 1rem;
+            }
+            
+            .game-title {
+                font-size: 1.5rem;
+            }
+            
+            .player-name {
+                font-size: 1rem;
+            }
+            
+            .game-status {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <span class="game-title">♔ Игра с ботом</span>
+            <a href="meny.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Назад
+            </a>
+        </div>
+
+        <!-- Информация об игроках -->
+        <div class="players-info">
+            <div class="player white">
+                <span class="player-icon">♔</span>
+                <div>
+                    <div class="player-name">Вы (белые)</div>
+                    <div class="player-turn" id="whiteTurn">ваш ход</div>
+                </div>
+            </div>
+            <div class="player black">
+                <span class="player-icon">♚</span>
+                <div>
+                    <div class="player-name">Бот (черные)</div>
+                    <div class="player-turn" id="blackTurn">ждет</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Контейнер для шахматной доски -->
+        <div class="board-container">
+            <div id="board"></div>
+        </div>
+
+        <!-- Статус игры -->
+        <div class="game-status" id="status">
+            Ваш ход. Выберите фигуру
+        </div>
+
+        <!-- Кнопка новой игры -->
+        <button class="new-game-btn" id="newGameBtn">
+            <i class="fas fa-rotate-right"></i> Новая игра
+        </button>
+    </div>
+
+    <!-- Подключаем необходимые библиотеки -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+
+    <script>
+        // Инициализация игры
+        $(document).ready(function() {
+            // Создаем экземпляр шахматной игры
+            var game = new Chess();
+            
+            // Конфигурация доски
+            var boardConfig = {
+                draggable: true,
+                position: 'start',
+                pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
+                onDragStart: onDragStart,
+                onDrop: onDrop,
+                onSnapEnd: onSnapEnd,
+                sparePieces: false
+            };
+
+            // Инициализируем доску
+            var board = Chessboard('board', boardConfig);
+
+            // Обновляем статус
+            updateStatus();
+
+            // Функция проверки, можно ли начать перетаскивание
+            function onDragStart(source, piece, position, orientation) {
+                // Не даем двигать фигуры, если игра окончена
+                if (game.game_over()) return false;
+                
+                // Не даем двигать фигуры, если сейчас ход бота (черных)
+                if (game.turn() === 'b') return false;
+                
+                // Не даем двигать чужие фигуры (игрок играет белыми)
+                if (piece.search(/^b/) !== -1) return false;
+            }
+
+            // Функция обработки перемещения фигуры
+            function onDrop(source, target) {
+                // Проверяем, закончилась ли игра
+                if (game.game_over()) {
+                    updateStatus();
+                    return 'snapback';
+                }
+
+                // Проверяем, чей ход
+                if (game.turn() === 'b') return 'snapback';
+
+                // Пытаемся сделать ход
+                var move = game.move({
+                    from: source,
+                    to: target,
+                    promotion: 'q' // Всегда превращаем в ферзя для простоты
+                });
+
+                // Если ход невозможен
+                if (move === null) return 'snapback';
+
+                // Обновляем статус
+                updateStatus();
+
+                // Если игра не закончена, делаем ход бота через небольшую задержку
+                if (!game.game_over()) {
+                    setTimeout(makeBotMove, 500);
+                }
+            }
+
+            // Функция хода бота
+            function makeBotMove() {
+                // Проверяем, не закончилась ли игра
+                if (game.game_over()) {
+                    updateStatus();
+                    return;
+                }
+
+                // Проверяем, что сейчас ход черных (бота)
+                if (game.turn() !== 'b') return;
+
+                // Получаем все возможные ходы
+                var moves = game.moves();
+                
+                // Если ходов нет (мат или пат)
+                if (moves.length === 0) {
+                    updateStatus();
+                    return;
+                }
+
+                // Выбираем случайный ход (простой бот)
+                var randomIndex = Math.floor(Math.random() * moves.length);
+                var move = game.move(moves[randomIndex]);
+
+                // Обновляем доску
+                board.position(game.fen());
+                
+                // Обновляем статус
+                updateStatus();
+
+                // Анимация хода бота
+                highlightBotMove(move);
+            }
+
+            // Функция подсветки хода бота
+            function highlightBotMove(move) {
+                if (move && move.from && move.to) {
+                    // Здесь можно добавить подсветку хода бота
+                    console.log('Бот сходил:', move.from, '->', move.to);
+                }
+            }
+
+            // Функция обновления статуса игры
+            function updateStatus() {
+                var status = '';
+                var whiteTurnElement = document.getElementById('whiteTurn');
+                var blackTurnElement = document.getElementById('blackTurn');
+
+                if (game.game_over()) {
+                    if (game.in_checkmate()) {
+                        if (game.turn() === 'w') {
+                            status = 'Мат! Черные выиграли!';
+                            whiteTurnElement.textContent = 'проиграл';
+                            blackTurnElement.textContent = 'победил!';
+                        } else {
+                            status = 'Мат! Белые выиграли!';
+                            whiteTurnElement.textContent = 'победил!';
+                            blackTurnElement.textContent = 'проиграл';
+                        }
+                    } else if (game.in_stalemate()) {
+                        status = 'Пат! Ничья';
+                        whiteTurnElement.textContent = 'ничья';
+                        blackTurnElement.textContent = 'ничья';
+                    } else if (game.in_threefold_repetition()) {
+                        status = 'Троекратное повторение! Ничья';
+                        whiteTurnElement.textContent = 'ничья';
+                        blackTurnElement.textContent = 'ничья';
+                    } else if (game.insufficient_material()) {
+                        status = 'Недостаточно фигур! Ничья';
+                        whiteTurnElement.textContent = 'ничья';
+                        blackTurnElement.textContent = 'ничья';
+                    } else {
+                        status = 'Игра окончена';
+                    }
+                } else {
+                    if (game.turn() === 'w') {
+                        status = 'Ваш ход';
+                        whiteTurnElement.textContent = 'ваш ход';
+                        blackTurnElement.textContent = 'ждет';
+                    } else {
+                        status = 'Ход бота...';
+                        whiteTurnElement.textContent = 'ждет';
+                        blackTurnElement.textContent = 'ходит';
+                    }
+                    
+                    // Проверка на шах
+                    if (game.in_check()) {
+                        status += ' (ШАХ!)';
+                    }
+                }
+
+                document.getElementById('status').textContent = status;
+            }
+
+            // Функция завершения анимации хода
+            function onSnapEnd() {
+                board.position(game.fen());
+            }
+
+            // Функция новой игры
+            function resetGame() {
+                game.reset();
+                board.start();
+                updateStatus();
+            }
+
+            // Обработчик кнопки новой игры
+            document.getElementById('newGameBtn').addEventListener('click', function() {
+                resetGame();
+            });
+
+            // Адаптация размера доски при изменении окна
+            $(window).resize(function() {
+                board.resize();
+            });
+
+            // Инициализация статуса игроков
+            updateStatus();
+        });
+    </script>
+</body>
+</html>
